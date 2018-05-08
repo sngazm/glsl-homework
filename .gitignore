@@ -1,0 +1,15 @@
+# Dependency directories
+node_modules/
+package-lock.json
+
+# Optional npm cache directory
+.npm
+
+# dotenv environment variables file
+.env
+
+# Sass cache directory
+.sass-cache
+
+# Transpiled files
+app/build/
