@@ -1,5 +1,5 @@
 {
-  "name": "practice2",
+  "name": "three-boilerplate",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -7,7 +7,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "babel": "babel app/src -o app/build/scripts.js",
     "build": "npm run build:js && npm run build:css",
-    "build:js": "browserify app/src/script/main.js -o app/build/bundle.js -t [ babelify --presets [ 'babel-preset-env' ] ]",
+    "build:js": "browserify app/src/script/main.js -o app/build/bundle.js -t [ babelify --presets [ 'babel-preset-env' ] ] -g uglifyify ",
     "build:css": "node-sass app/src/stylesheet/style.scss app/build/style.css",
     "watch:js": "watchify app/src/script/main.js -o app/build/bundle.js -t [ babelify --presets [ 'babel-preset-env' ] ] -v",
     "watch:css": "node-sass --watch app/src/stylesheet/style.scss app/build/style.css",
@@ -21,7 +21,8 @@
     "babel-preset-env": "^1.6.1",
     "babelify": "^8.0.0",
     "browser-sync": "^2.24.1",
-    "node-sass": "^4.9.0"
+    "node-sass": "^4.9.0",
+    "uglifyify": "^5.0.0"
   },
   "dependencies": {
     "orbit-controls-es6": "^1.0.12",
