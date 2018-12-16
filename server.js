@@ -54,3 +54,9 @@ function getType(_url) {
 
 // HTTPサーバにソケットをひも付ける（WebSocket有効化）
 const io = socketio.listen(server);
+
+io.sockets.on('connection', (socket) => {
+  socket.on('client_to_server', function(data) {
+    io.sockets.emit('server_to_client', {value: data.value});
+  })
+});

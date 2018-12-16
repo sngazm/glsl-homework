@@ -15,7 +15,7 @@ scene.background = new THREE.Color(0xDAD7CD);
 const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 300);
 camera.position.set(0, 0, 300);
 camera.lookAt(new THREE.Vector3(0, 0, 0));
-// camera.aspect = window.innerWidth/window.innerHeight;
+
 
 const axis = new THREE.AxesHelper(100);
 scene.add(axis);
@@ -224,6 +224,19 @@ function applyUniforms(param) {
     uniforms["u_" + paramName].value = param[paramName];
   }
 }
+
+// -----------------------------
+// Socket.io
+// -----------------------------
+const socket = io.connect();
+socket.on('server_to_client', (data) => {
+  console.log(data);
+});
+document.getElementById('yo').addEventListener('click', (e) => {
+  socket.emit('client_to_server', {value: 'yo'});
+  e.preventDefault();
+});
+
 
 
 // -----------------------------
