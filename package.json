@@ -1,5 +1,5 @@
 {
-  "name": "three-boilerplate",
+  "name": "glsl-homework",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -25,8 +25,10 @@
     "uglifyify": "^5.0.0"
   },
   "dependencies": {
+    "cannon": "^0.6.2",
+    "dat.gui": "^0.7.3",
     "orbit-controls-es6": "^1.0.12",
-    "three": "^0.92.0",
-    "cannon": "^0.6.2"
+    "socket.io": "^2.2.0",
+    "three": "^0.92.0"
   }
 }
