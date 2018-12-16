@@ -11,7 +11,7 @@
     "build:css": "node-sass app/src/stylesheet/style.scss app/build/style.css",
     "watch:js": "watchify app/src/script/main.js -o app/build/bundle.js -t [ babelify --presets [ 'babel-preset-env' ] ] -v",
     "watch:css": "node-sass --watch app/src/stylesheet/style.scss app/build/style.css",
-    "start": "browser-sync start --server=app/ --watch --files='app/build/*.*'",
+    "start": "node ./server.js",
     "watch": "npm run start & npm run watch:js & npm run watch:css"
   },
   "author": "",
@@ -20,7 +20,6 @@
     "babel-core": "^6.26.0",
     "babel-preset-env": "^1.6.1",
     "babelify": "^8.0.0",
-    "browser-sync": "^2.24.1",
     "node-sass": "^4.9.0",
     "uglifyify": "^5.0.0"
   },
