@@ -12,4 +12,6 @@ package-lock.json
 .sass-cache
 
 # Transpiled files
-app/build/
+app/build/*
+
+!.gitkeep

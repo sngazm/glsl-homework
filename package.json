@@ -18,13 +18,13 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "babel-core": "^6.26.0",
-    "babel-preset-env": "^1.6.1",
-    "babelify": "^8.0.0",
     "node-sass": "^4.9.0",
     "uglifyify": "^5.0.0"
   },
   "dependencies": {
+    "babel-core": "^6.26.3",
+    "babel-preset-env": "^1.7.0",
+    "babelify": "^8.0.0",
     "cannon": "^0.6.2",
     "dat.gui": "^0.7.3",
     "orbit-controls-es6": "^1.0.12",
