@@ -52,7 +52,6 @@
   function syncNoiseParams(data) {
     for (let dom of noiseDoms) {
       if (dom.name === data.key) {
-        // console.log(data.key, data.value)
         dom.value = data.value;
       }
     }

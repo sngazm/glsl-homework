@@ -30,7 +30,7 @@ const server = http.createServer(function(req, res) {
 // Listen
 const port = process.env.PORT || 7000;
 server.listen(port, function() {
-  console.log("Listening on: http://localhost:" + port);
+  // console.log("Listening on: http://localhost:" + port);
 });
 
 
@@ -61,7 +61,7 @@ io.sockets.on('connection', (socket) => {
       io.sockets.emit('server_to_client', {value: data.value});
     })
     .on('update_noiseparams', (data) => {
-      io.sockets.emit('update_noiseparams', data);
+      socket.broadcast.emit('update_noiseparams', data);
     })
 
 });
