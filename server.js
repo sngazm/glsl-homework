@@ -7,7 +7,7 @@ const fs = require('fs');
 const server = http.createServer(function(req, res) {
 
   const url = "app" + (req.url.endsWith("/") ? req.url + "index.html" : req.url);
-  console.log(req.url);
+
   console.log(url);
 
   if (fs.existsSync(url)) {
@@ -56,7 +56,12 @@ function getType(_url) {
 const io = socketio.listen(server);
 
 io.sockets.on('connection', (socket) => {
-  socket.on('client_to_server', function(data) {
-    io.sockets.emit('server_to_client', {value: data.value});
-  })
+  socket
+    .on('client_to_server', function(data) {
+      io.sockets.emit('server_to_client', {value: data.value});
+    })
+    .on('update_noiseparams', (data) => {
+      io.sockets.emit('update_noiseparams', data);
+    })
+
 });

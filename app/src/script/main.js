@@ -181,13 +181,9 @@ const uniforms = {
     type: 'f',
     value: colorParams.bmosaic
   },
-
 };
 
 const noiseFolder = gui.addFolder('noiseParams');
-// folder.add(noiseParams, 'xstart', 0, 10).listen();
-// folder.add(noiseParams, 'ystart', 0, 10).listen();
-// folder.add(noiseParams, 'zstart', 0, 10).listen();
 noiseFolder.add(noiseParams, 'xscale', -10, 10, 0.1).listen();
 noiseFolder.add(noiseParams, 'yscale', -10, 10, 0.1).listen();
 noiseFolder.add(noiseParams, 'zscale', -10, 10, 0.1).listen();
@@ -232,6 +228,10 @@ const socket = io.connect();
 socket.on('server_to_client', (data) => {
   console.log(data);
 });
+socket.on('update_noiseparams', (data) => {
+  console.log(data);
+  noiseParams[data.key] = data.value;
+});
 document.getElementById('yo').addEventListener('click', (e) => {
   socket.emit('client_to_server', {value: 'yo'});
   e.preventDefault();
@@ -254,7 +254,7 @@ const renderLoop = () => {
     uniforms.u_time.value = time;
     updateNoise();
     applyUniforms(noiseParams);
-    applyUniforms(colorParams)
+    applyUniforms(colorParams);
   }
   renderer.render(scene, camera);
 };

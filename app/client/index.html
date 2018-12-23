@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>GLSL Homework Client</title>
+  <script type="text/javascript" src="/socket.io/socket.io.js"></script>
+</head>
+<body>
+<input id="threshold" name="threshold" type="range" min="-1" max="1" value="0" step="0.01">
+<br>
+<input id="thresholdwidth" name="thresholdwidth" type="range" min="0" max="2" value="0" step="0.01">
+
+<script>
+  var socket = io.connect();
+  // document.getElementById('client').addEventListener('click', function(e) {
+  //   socket.emit('client_to_server', {value: "YoYo"});
+  //   e.preventDefault();
+  // });
+
+  // この辺ダサいので配列に入れてループでイベントつける
+  var noiseDoms = [];
+
+
+  // var domThreshold =
+  noiseDoms.push(document.getElementById('threshold'));
+  noiseDoms.push(document.getElementById('thresholdwidth'));
+  for (let i = 0; i < noiseDoms.length; i++) {
+    noiseDoms[i].addEventListener('input', function () {
+      updateNoiseParams({key: this.name, value: this.value});
+    })
+  }
+
+    // domThreshold.addEventListener('input', function() {
+    //   updateNoiseParams({key: this.name, value: this.value});
+    // });
+    // var domThresholdwidth = document.getElementById('thresholdwidth');
+    // domThresholdwidth.addEventListener('input', function() {
+    //   updateNoiseParams({key: this.name, value: this.value});
+    // });
+
+  function updateNoiseParams(params) {
+    socket.emit('update_noiseparams', {
+      key: params.key,
+      value: params.value
+    });
+  }
+
+  socket.on('update_noiseparams', (data) => {
+    syncNoiseParams(data)
+  });
+
+  function syncNoiseParams(data) {
+    for (let dom of noiseDoms) {
+      if (dom.name === data.key) {
+        // console.log(data.key, data.value)
+        dom.value = data.value;
+      }
+    }
+  }
+</script>
+</body>
+</html>
