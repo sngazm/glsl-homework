@@ -15,7 +15,7 @@
 </head>
 <body>
 <div id="controls">
-    <div id="slider-wrap"></div>
+    <div id="noise-controls"></div>
 </div>
 
 <script>
@@ -30,6 +30,8 @@
     },
     range: "min",
     slide : (e, ui) => {
+
+      $("#" + e.target.id).prev().text(ui.value);
       updateNoiseParams({key: e.target.id, value: ui.value});
     },
   };
@@ -57,10 +59,19 @@
 
   $(function() {
     noiseParams.forEach((param) => {
+      const wrap = $("<div>").addClass('slider-wrap');
+
+      const label = $("<p>").addClass('label').text(param.name);
+      wrap.append(label);
+
+      const value = $("<p>").addClass('value').text(param.value);
+      wrap.append(value);
+
       const dom = $("<div>").attr("id", param.name);
       const sliderParams = Object.assign(param, sliderBase);
       dom.slider(sliderParams);
-      $('#slider-wrap').append(dom);
+      wrap.append(dom);
+      $('#noise-controls').append(wrap);
 
       // 後から操作できるようにDOM要素配列としても持っておく
       noiseDomArray.push(dom.get(0));
@@ -92,5 +103,7 @@
 </script>
 
 <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+<link href="https://fonts.googleapis.com/css?family=Staatliches" rel="stylesheet">
+<link rel="stylesheet" href="/client/style.css">
 </body>
 </html>

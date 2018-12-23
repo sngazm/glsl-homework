@@ -1,0 +1,54 @@
+html, body {
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Staatliches', cursive;
+    background-color: #23231A;
+    color: #fff;
+}
+
+
+.slider-wrap {
+    position: relative;
+    width: 100%;
+    height: 100px;
+}
+
+.label {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    margin: 0;
+    padding: 10px;
+    z-index: 1;
+}
+
+.value {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    margin: 0;
+    padding: 10px;
+    z-index: 1;
+}
+
+.ui-widget.ui-widget-content {
+    border: 0;
+}
+.slider {
+    position: relative;
+    height: 100%;
+    background-color: transparent;
+    z-index: 0;
+}
+
+.range {
+    z-index: 0;
+    background-color: #FFC914;
+}
+
+.handle {
+    visibility: hidden;
+}
