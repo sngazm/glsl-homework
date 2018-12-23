@@ -4,36 +4,70 @@
   <meta charset="UTF-8">
   <title>GLSL Homework Client</title>
   <script type="text/javascript" src="/socket.io/socket.io.js"></script>
+  <script
+    src="https://code.jquery.com/jquery-3.3.1.min.js"
+    integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+    crossorigin="anonymous"></script>
+  <script
+    src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"
+    integrity="sha256-VazP97ZCwtekAsvgPBSUwPFKdrwD3unUfSGVYrahUqU="
+    crossorigin="anonymous"></script>
 </head>
 <body>
-<input id="threshold" name="threshold" type="range" min="-1" max="1" value="0" step="0.01">
-<br>
-<input id="thresholdwidth" name="thresholdwidth" type="range" min="0.01" max="2" value="0.01" step="0.01">
+<div id="controls">
+    <div id="slider-wrap"></div>
+</div>
 
 <script>
-  var socket = io.connect();
+  const socket = io.connect();
 
-  // この辺ダサいので配列に入れてループでイベントつける
-  var noiseDoms = [];
+  // 全てのスライダー要素の共通プロパティ
+  const sliderBase = {
+    classes: {
+      "ui-slider": "slider",
+      "ui-slider-handle": "handle",
+      "ui-slider-range": "range"
+    },
+    range: "min",
+    slide : (e, ui) => {
+      updateNoiseParams({key: e.target.id, value: ui.value});
+    },
+  };
 
+  // ノイズパラメータたち
+  const noiseParams = [
+    {
+      name: "threshold",
+      value: 0,
+      min: -1,
+      max: 1,
+      step: 0.01
+    },
+    {
+      name: "thresholdwidth",
+      value: 0.01,
+      min: 0.01,
+      max: 1,
+      step: 0.01
+    }
+  ];
 
-  // var domThreshold =
-  noiseDoms.push(document.getElementById('threshold'));
-  noiseDoms.push(document.getElementById('thresholdwidth'));
-  for (let i = 0; i < noiseDoms.length; i++) {
-    noiseDoms[i].addEventListener('input', function () {
-      updateNoiseParams({key: this.name, value: this.value});
+  // ノイズパラメータの数だけスライダー要素を生成する
+  const noiseDomArray = [];
+
+  $(function() {
+    noiseParams.forEach((param) => {
+      const dom = $("<div>").attr("id", param.name);
+      const sliderParams = Object.assign(param, sliderBase);
+      dom.slider(sliderParams);
+      $('#slider-wrap').append(dom);
+
+      // 後から操作できるようにDOM要素配列としても持っておく
+      noiseDomArray.push(dom.get(0));
     })
-  }
+  });
 
-    // domThreshold.addEventListener('input', function() {
-    //   updateNoiseParams({key: this.name, value: this.value});
-    // });
-    // var domThresholdwidth = document.getElementById('thresholdwidth');
-    // domThresholdwidth.addEventListener('input', function() {
-    //   updateNoiseParams({key: this.name, value: this.value});
-    // });
-
+  // 自分の操作を送る
   function updateNoiseParams(params) {
     socket.emit('update_noiseparams', {
       key: params.key,
@@ -41,17 +75,22 @@
     });
   }
 
+  // 他人の操作を受け取る
   socket.on('update_noiseparams', (data) => {
     syncNoiseParams(data)
   });
 
   function syncNoiseParams(data) {
-    for (let dom of noiseDoms) {
-      if (dom.name === data.key) {
-        dom.value = data.value;
+    console.log(data);
+    for (let dom of noiseDomArray) {
+      if (dom.id === data.key) {
+        $(dom).slider("value", data.value);
       }
     }
   }
+
 </script>
+
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
 </body>
 </html>
