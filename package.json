@@ -12,7 +12,8 @@
     "watch:js": "watchify app/src/script/main.js -o app/build/bundle.js -t [ babelify --presets [ 'babel-preset-env' ] ] -v",
     "watch:css": "node-sass --watch app/src/stylesheet/style.scss app/build/style.css",
     "start": "node ./server.js",
-    "watch": "npm run start & npm run watch:js & npm run watch:css"
+    "watch": "npm run start & npm run watch:js & npm run watch:css",
+    "postinstall": "npm run build"
   },
   "author": "",
   "license": "ISC",
