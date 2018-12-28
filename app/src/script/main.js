@@ -93,18 +93,6 @@ const uniforms = {
       0
     )
   },
-  // "u_xstart": {
-  //   type: 'f',
-  //   value: noiseParams.xstart
-  // },
-  // "u_ystart": {
-  //   type: 'f',
-  //   value: noiseParams.ystart
-  // },
-  // "u_zstart": {
-  //   type: 'f',
-  //   value: noiseParams.zstart
-  // },
   "u_xscale": {
     type: 'f',
     value: noiseParams.xscale
@@ -228,9 +216,20 @@ const socket = io.connect();
 socket.on('server_to_client', (data) => {
   console.log(data);
 });
-socket.on('update_noiseparams', (data) => {
-  console.log(data);
-  noiseParams[data.key] = data.value;
+socket.on('update_sliderparams', (data) => {
+  for (let param in noiseParams) {
+    if(param == data.key) {
+      noiseParams[data.key] = data.value;
+      return;
+    }
+  }
+  for (let param in colorParams) {
+    if(param == data.key) {
+      colorParams[data.key] = data.value;
+      return;
+    }
+  }
+
 });
 
 

@@ -1,0 +1,65 @@
+[
+  {
+    "name": "roffset",
+    "value": 0.0,
+    "min": -1.0,
+    "max": 1.0,
+    "step": 0.01
+  },
+  {
+    "name": "goffset",
+    "value": 0.0,
+    "min": -1.0,
+    "max": 1.0,
+    "step": 0.01
+  },
+  {
+    "name": "boffset",
+    "value": 0.0,
+    "min": -1.0,
+    "max": 1.0,
+    "step": 0.01
+  },
+  {
+    "name": "rrotate",
+    "value": 0.0,
+    "min": -3.14,
+    "max": 3.14,
+    "step": 0.01
+  },
+  {
+    "name": "grotate",
+    "value": 0.0,
+    "min": -3.14,
+    "max": 3.14,
+    "step": 0.01
+  },
+  {
+    "name": "brotate",
+    "value": 0.0,
+    "min": -3.14,
+    "max": 3.14,
+    "step": 0.01
+  },
+  {
+    "name": "rmosaic",
+    "value": 0.0,
+    "min": -1.0,
+    "max": 1.0,
+    "step": 0.001
+  },
+  {
+    "name": "gmosaic",
+    "value": 0.0,
+    "min": -1.0,
+    "max": 1.0,
+    "step": 0.001
+  },
+  {
+    "name": "bmosaic",
+    "value": 0.0,
+    "min": -1.0,
+    "max": 1.0,
+    "step": 0.001
+  }
+]

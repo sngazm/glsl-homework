@@ -17,8 +17,13 @@
 
 </head>
 <body>
+<div id="control-changers">
+  <button id="next">hoge</button>
+  <button id="previous">hoge</button>
+</div>
 <div id="controls">
     <div id="noise-controls"></div>
+    <div id="color-controls"></div>
 </div>
 
 
@@ -34,85 +39,19 @@
     },
     range: "min",
     slide : (e, ui) => {
-
       $("#" + e.target.id).prev().text(ui.value);
-      updateNoiseParams({key: e.target.id, value: ui.value});
+      updateSliderParams({key: e.target.id, value: ui.value});
     },
   };
 
-  // ノイズパラメータたち
-  const noiseParams = [
-    {
-      name: "xscale",
-      value: 1.5,
-      min: -10,
-      max: 10,
-      step: 0.1
-    },
-    {
-      name: "yscale",
-      value: 1.5,
-      min: -10,
-      max: 10,
-      step: 0.1
-    },
-    {
-      name: "xspeed",
-      value: 0,
-      min: -0.1,
-      max: 0.1,
-      step: 0.01
-    },
-    {
-      name: "yspeed",
-      value: 0,
-      min: -0.1,
-      max: 0.1,
-      step: 0.01
-    },
-    {
-      name: "zspeed",
-      value: 0.001,
-      min: -0.02,
-      max: 0.02,
-      step: 0.001
-    },
-    {
-      name: "xskew",
-      value: 0.0,
-      min: -1.0,
-      max: 1.0,
-      step: 0.01
-    },
-    {
-      name: "yskew",
-      value: 0.0,
-      min: -1.0,
-      max: 1.0,
-      step: 0.01
-    },
-    {
-      name: "threshold",
-      value: 0,
-      min: -1,
-      max: 1,
-      step: 0.01
-    },
-    {
-      name: "thresholdwidth",
-      value: 0.01,
-      min: 0.01,
-      max: 1,
-      step: 0.01
-    },
 
-  ];
 
   // ノイズパラメータの数だけスライダー要素を生成する
-  const noiseDomArray = [];
+  const sliderDomArray = [];
 
-  $(function() {
-    noiseParams.forEach((param) => {
+
+  function generateSliders(paramsArray, elId) {
+    paramsArray.forEach((param) => {
       const wrap = $("<div>").addClass('slider-wrap');
 
       const label = $("<p>").addClass('label').text(param.name);
@@ -125,34 +64,56 @@
       const sliderParams = Object.assign(param, sliderBase);
       dom.slider(sliderParams);
       wrap.append(dom);
-      $('#noise-controls').append(wrap);
+      $("#" + elId).append(wrap);
 
       // 後から操作できるようにDOM要素配列としても持っておく
-      noiseDomArray.push(dom.get(0));
+      sliderDomArray.push(dom.get(0));
+    });
+  }
+
+  fetch('noiseParams.json')
+    .then(function(response) {
+      return response.json();
     })
-  });
+    .then(function(json) {
+      generateSliders(json, "noise-controls");
+    });
+
+  fetch('colorParams.json')
+    .then(function(response) {
+      return response.json();
+    })
+    .then(function(json) {
+      generateSliders(json, "color-controls");
+    });
+
+
+
+
 
   // 自分の操作を送る
-  function updateNoiseParams(params) {
-    socket.emit('update_noiseparams', {
+  function updateSliderParams(params) {
+    socket.emit('update_sliderparams', {
       key: params.key,
       value: params.value
     });
   }
-
   // 他人の操作を受け取る
-  socket.on('update_noiseparams', (data) => {
-    syncNoiseParams(data)
+  socket.on('update_sliderparams', (data) => {
+    syncSliderParams(data)
   });
 
-  function syncNoiseParams(data) {
-    console.log(data);
-    for (let dom of noiseDomArray) {
+  function syncSliderParams(data) {
+    for (let dom of sliderDomArray) {
       if (dom.id === data.key) {
         $(dom).slider("value", data.value);
       }
     }
   }
+
+
+
+
 
 </script>
 

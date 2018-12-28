@@ -60,8 +60,8 @@ io.sockets.on('connection', (socket) => {
     .on('client_to_server', function(data) {
       io.sockets.emit('server_to_client', {value: data.value});
     })
-    .on('update_noiseparams', (data) => {
-      socket.broadcast.emit('update_noiseparams', data);
+    .on('update_sliderparams', (data) => {
+      socket.broadcast.emit('update_sliderparams', data);
     })
 
 });
