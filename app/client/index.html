@@ -17,13 +17,16 @@
 
 </head>
 <body>
-<div id="control-changers">
-  <button id="next">hoge</button>
-  <button id="previous">hoge</button>
+
+<div id="control-tabs">
+  <button id="noise" class="selected">NOISE</button>
+  <button id="color">COLOR</button>
+  <button id="model">MODEL</button>
 </div>
 <div id="controls">
-    <div id="noise-controls"></div>
+    <div id="noise-controls" class="show"></div>
     <div id="color-controls"></div>
+    <div id="model-controls"></div>
 </div>
 
 
@@ -43,8 +46,6 @@
       updateSliderParams({key: e.target.id, value: ui.value});
     },
   };
-
-
 
   // ノイズパラメータの数だけスライダー要素を生成する
   const sliderDomArray = [];
@@ -113,7 +114,16 @@
 
 
 
-
+  // タブ切り替えUI
+  $('#control-tabs').children().each(function(i, el) {
+    $(el).on('click', function() {
+      $('#control-tabs .selected').removeClass('selected');
+      $(this).addClass('selected');
+      $('#controls .show').removeClass('show');
+      console.log('#controls .' + $(this).attr('id') + '-controls');
+      $('#' + $(this).attr('id') + '-controls').addClass('show');
+    })
+  })
 
 </script>
 
