@@ -232,11 +232,6 @@ socket.on('update_noiseparams', (data) => {
   console.log(data);
   noiseParams[data.key] = data.value;
 });
-document.getElementById('yo').addEventListener('click', (e) => {
-  socket.emit('client_to_server', {value: 'yo'});
-  e.preventDefault();
-});
-
 
 
 // -----------------------------
