@@ -2,39 +2,209 @@ import * as THREE from 'three';
 import loadShader from './loadShader.js';
 import * as dat from 'dat.gui';
 import io from 'socket.io-client';
-
+import OrbitControls from 'orbit-controls-es6';
 const gui = new dat.GUI();
+
 
 // -----------------
 // Init scene
 // -----------------
-window.THREE = THREE;
-const scene = new THREE.Scene();
-scene.background = new THREE.Color(0xDAD7CD);
 
-const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 300);
+
+class Sign extends THREE.Mesh {
+  constructor (filePath) {
+    super();
+    const geometry = new THREE.CircleGeometry(100, 64);
+    this.geometry = geometry;
+
+    this.name = filePath;
+
+    texLoader.load( filePath, texture => {
+      console.log('load ', texture);
+      this.material = new THREE.MeshBasicMaterial({
+        map: texture,
+        side: THREE.DoubleSide
+      })
+    });
+
+    // 基準の値からランダムに遠いところを指す
+    const randFar = (max, min, base) => {
+      return base + (Math.random() * (max - min) + min) * Math.sign((Math.random() - 0.5));
+    };
+
+    // 基準の値からランダムに近いところをさす
+    const randNear = (max, base) => {
+      return base + (Math.random() * max) * Math.sign((Math.random() - 0.5))
+    }
+
+    this.positionA = new THREE.Vector3(randFar(500, 0, 0), randFar(500, 300, 0), randFar(800, 300, -200));
+    this.positionB = new THREE.Vector3(randNear(200, 0), randNear(100, 0), randNear(100, -100));
+
+
+
+    this.floatPosition = this.positionB.clone()
+      .sub(this.positionA)
+      .divideScalar(3);// 開始から3分の1いったとこ
+
+    this.status = 'standby'; // standby, starting, floating, ending, end
+    this.t = 0;
+    this.end = 300;
+    this.floatT = 0;
+    this.floatingTime = 200;
+    this.position.set(this.positionA.x, this.positionA.y, this.positionA.z);
+    this.direction = this.positionB.clone().sub(this.positionA).normalize();
+    this.floatSpeed = 0.5;
+    this.rotationAngle = new THREE.Vector3(Math.random(), Math.random(), Math.random()).normalize();
+    this.rotationSpeed = Math.random() * 0.02;
+  }
+
+  update() {
+
+    let speed, v;
+
+    switch (this.status) {
+      case 'standby':
+        break;
+
+      case 'starting':
+        // 移動
+        this.t++;
+        speed = 10 * Math.exp(- this.t * 0.2 + 2);
+        v = this.direction.clone().multiplyScalar(speed);
+        this.position.add(v);
+
+        // 回転
+        this.rotateOnAxis(this.rotationAngle, this.rotationSpeed);
+
+
+        if (v.length() <= this.floatSpeed) {
+          console.log('floating');
+          this.status = 'floating';
+        }
+        break;
+
+      case 'floating':
+        this.floatT++;
+        v = this.direction.clone().multiplyScalar(this.floatSpeed);
+        this.position.add(v);
+
+        this.rotateOnAxis(this.rotationAngle, this.rotationSpeed);
+
+
+        // if (this.floatT >= this.floatingTime) {
+        //   console.log('ending');
+        //   this.status = 'ending'
+        // }
+        break;
+
+      case 'ending':
+        this.t--;
+        speed = 10 * Math.exp(- this.t * 0.2 + 2);
+        v = this.direction.clone().multiplyScalar(speed);
+        this.position.add(v);
+        console.log(speed);
+        // console.log('starting');
+        // 回転
+        this.rotateOnAxis(this.rotationAngle, this.rotationSpeed);
+
+
+        if (this.t <= -100) {
+          this.status = 'end';
+          console.log('end')
+        }
+        break;
+
+      case 'end':
+
+        break;
+    }
+  }
+}
+
+
+// -----------------
+// Init scene
+// -----------------
+
+
+window.THREE = THREE;
+
+// Background Scene
+
+const bgScene = new THREE.Scene();
+bgScene.background = new THREE.Color(0xDAD7CD);
+
+const bgCamera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 300);
+bgCamera.position.set(0, 0, 300);
+bgCamera.lookAt(new THREE.Vector3(0, 0, 0));
+
+
+const bgRenderer = new THREE.WebGLRenderer({ alpha: true });
+bgRenderer.setPixelRatio(1);
+document.getElementById('wrap').appendChild(bgRenderer.domElement);
+bgRenderer.setSize(window.innerWidth, window.innerHeight);
+
+
+
+// Scene
+
+const scene = new THREE.Scene();
+window.scene = scene;
+// scene.background = new THREE.Color(0xCCddAA);
+
+const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 10000);
 camera.position.set(0, 0, 300);
 camera.lookAt(new THREE.Vector3(0, 0, 0));
+scene.add(camera);
 
+const gridHelper = new THREE.GridHelper(500, 50, 0xccaaaa);
+scene.add(gridHelper);
 
-const axis = new THREE.AxesHelper(100);
+const axis = new THREE.AxesHelper(1000);
 scene.add(axis);
 
-const renderer = new THREE.WebGLRenderer({ alpha: true });
+const renderer = new THREE.WebGLRenderer({alpha: true});
 renderer.setPixelRatio(1);
 document.getElementById('wrap').appendChild(renderer.domElement);
 renderer.setSize(window.innerWidth, window.innerHeight);
 
 
-
 // -----------------------------
 // Main
 // -----------------------------
+// const controls = new OrbitControls(camera);
+const texLoader = new THREE.TextureLoader();
+
+const cube = new THREE.Mesh(
+  new THREE.CubeGeometry(100, 100),
+  new THREE.MeshBasicMaterial({
+    color: 0x00ffff
+  })
+);
+cube.position.set(0, 0, -100);
+// scene.add(cube);
+
+const objects = [];
+let count = 0;
+document.addEventListener('click', () => {
+  console.log(objects[count]);
+  objects[count++].status = 'starting';
+});
+
+for (let i = 0; i < 6; i++) {
+  let signMesh = new Sign('public/images/' + i + '.png');
+  // signMesh.position.set(0, 0, 0);
+  objects.push(signMesh);
+  scene.add(signMesh);
+}
+
+// Background
+
 const planeGeo = new THREE.PlaneBufferGeometry(100, 100);
 const plane = new THREE.Mesh(planeGeo, new THREE.MeshBasicMaterial({
   color: 0xffaaaa
 }));
-scene.add(plane);
+bgScene.add(plane);
 
 // 大本のパラメータはここに持たせとく
 // 毎フレームここのパラメータがuniformsに反映されるようにする
@@ -229,12 +399,11 @@ socket.on('update_sliderparams', (data) => {
       return;
     }
   }
-
 });
 
 
 // -----------------------------
-// Render the scene
+// Render the scenes
 // -----------------------------
 let startTime;
 let time = 0;
@@ -250,7 +419,11 @@ const renderLoop = () => {
     applyUniforms(noiseParams);
     applyUniforms(colorParams);
   }
+  bgRenderer.render(bgScene, bgCamera);
   renderer.render(scene, camera);
+  for (let obj of objects) {
+    obj.update();
+  }
 };
 renderLoop();
 

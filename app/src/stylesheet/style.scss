@@ -3,3 +3,8 @@ html, body {
   padding: 0;
 
 }
+
+canvas {
+  position: fixed;
+  z-index: -1;
+}
