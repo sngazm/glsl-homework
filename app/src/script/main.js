@@ -11,20 +11,36 @@ const gui = new dat.GUI();
 // -----------------
 
 
-class Sign extends THREE.Mesh {
-  constructor (filePath) {
+class SignMesh extends THREE.Mesh {
+  constructor (shape, num) {
     super();
-    const geometry = new THREE.CircleBufferGeometry(100, 128);
+    let geometry;
+    switch (shape) {
+      case 'circle':
+        geometry = new THREE.CircleBufferGeometry(100, 128);
+        break;
+      case 'triangle':
+        geometry = new THREE.PlaneBufferGeometry(100, 100, 128, 128);
+        break;
+      case 'square':
+        geometry = new THREE.PlaneBufferGeometry(100, 100, 128, 128);
+    }
+
     this.geometry = geometry;
 
+    const filePath = `public/images/${shape}_${num}.png`;
     this.name = filePath;
     const self = this;
     texLoader.load( filePath, texture => {
-      console.log('load ', texture);
-      loadShader('public/shader/0.vert', 'public/shader/0.frag', function(vert, frag) {
-        const mat = new THREE.RawShaderMaterial({
+      texture.wrapS = THREE.RepeatWrapping;
+      texture.wrapT = THREE.RepeatWrapping;
+      console.log('load', texture);
+      const shaderNum = Math.floor(Math.random() * 2);
+      loadShader(`public/shader/${shaderNum}.vert`, `public/shader/${shaderNum}.frag`, function(vert, frag) {
+        const material = new THREE.RawShaderMaterial({
           vertexShader: vert,
           fragmentShader: frag,
+          transparent: true,
           uniforms: {
             uTime: {
               type: 'f',
@@ -37,7 +53,10 @@ class Sign extends THREE.Mesh {
           },
           side: THREE.DoubleSide
         });
-        self.material = mat;
+        self.material = material;
+
+        // uTimeに渡す最初の時間
+        self.startTime = 0;
 
       });
       // this.material = new THREE.MeshBasicMaterial({
@@ -69,14 +88,14 @@ class Sign extends THREE.Mesh {
     this.t = 0;
     this.end = 300;
     this.floatT = 0;
-    this.floatingTime = 200;
+    this.floatingTime = 500;
     this.position.set(this.positionA.x, this.positionA.y, this.positionA.z);
     this.direction = this.positionB.clone().sub(this.positionA).normalize();
     this.floatSpeed = 0.5;
     this.rotationAngle = new THREE.Vector3(Math.random(), Math.random(), Math.random()).normalize();
     this.rotationSpeed = Math.random() * 0.02;
 
-    this.startTime = 0;
+    this.startTime;
     this.visible = false;
   }
 
@@ -90,7 +109,7 @@ class Sign extends THREE.Mesh {
 
       case 'starting':
         if (!this.visible) this.visible = true;
-        if (this.startTime === 0) this.startTime = new Date().getTime();
+        if (this.startTime !== undefined && this.startTime === 0) this.startTime = new Date().getTime();
         // 移動
         this.t++;
         speed = 10 * Math.exp(- this.t * 0.2 + 2);
@@ -115,10 +134,10 @@ class Sign extends THREE.Mesh {
         this.rotateOnAxis(this.rotationAngle, this.rotationSpeed);
 
 
-        // if (this.floatT >= this.floatingTime) {
-        //   console.log('ending');
-        //   this.status = 'ending'
-        // }
+        if (this.floatT >= this.floatingTime) {
+          console.log('ending');
+          this.status = 'ending'
+        }
         break;
 
       case 'ending':
@@ -126,8 +145,6 @@ class Sign extends THREE.Mesh {
         speed = 10 * Math.exp(- this.t * 0.2 + 2);
         v = this.direction.clone().multiplyScalar(speed);
         this.position.add(v);
-        console.log(speed);
-        // console.log('starting');
         // 回転
         this.rotateOnAxis(this.rotationAngle, this.rotationSpeed);
 
@@ -143,7 +160,7 @@ class Sign extends THREE.Mesh {
         break;
     }
 
-    if (this.startTime !== 0) {
+    if (this.startTime !== undefined && this.startTime !== 0) {
       this.material.uniforms.uTime.value = new Date().getTime() - this.startTime;
       // console.log(this.material.uniforms.uTime.value)
     }
@@ -217,16 +234,42 @@ cube.position.set(0, 0, -100);
 const objects = [];
 let count = 0;
 document.addEventListener('click', () => {
-  console.log(objects[count]);
-  objects[count++].status = 'starting';
+  // console.log(objects[count]);
+  // objects[count++].status = 'starting';
+  throwRandomSign();
 });
 
-for (let i = 0; i < 6; i++) {
-  let signMesh = new Sign('public/images/' + i + '.png');
-  // signMesh.position.set(0, 0, 0);
+function throwRandomSign() {
+  const shapes = [
+    {
+      name: 'circle',
+      num: 37
+    },
+    {
+      name: 'triangle',
+      num: 2
+    },
+    {
+      name: 'square',
+      num: 16
+    }
+  ];
+  const randShape = shapes[Math.floor(Math.random() * shapes.length)];
+  const randNum = Math.floor(Math.random() * randShape.num);
+  console.log(randShape.name, randNum);
+
+  let signMesh = new SignMesh(randShape.name, randNum);
   objects.push(signMesh);
   scene.add(signMesh);
+  signMesh.status = 'starting';
 }
+
+
+// for (let i = 0; i < 6; i++) {
+//   // let signMesh = new SignMesh('public/images/' + i + '.png');
+//   objects.push(signMesh);
+//   scene.add(signMesh);
+// }
 
 // Background
 
@@ -451,8 +494,14 @@ const renderLoop = () => {
   }
   bgRenderer.render(bgScene, bgCamera);
   renderer.render(scene, camera);
-  for (let obj of objects) {
-    obj.update();
+  for (let i = 0; i < objects.length; i++) {
+    objects[i].update();
+    if (objects[i].status === 'end') {
+      scene.remove(objects[i]);
+      objects[i].geometry.dispose();
+      objects[i].material.dispose();
+      objects.splice(i, 1);
+    }
   }
 };
 renderLoop();
