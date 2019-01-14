@@ -12,26 +12,14 @@ const gui = new dat.GUI();
 
 
 class SignMesh extends THREE.Mesh {
-  constructor (shape, num) {
+  constructor (texture) {
     super();
-    let geometry;
-    switch (shape) {
-      case 'circle':
-        geometry = new THREE.CircleBufferGeometry(100, 128);
-        break;
-      case 'triangle':
-        geometry = new THREE.PlaneBufferGeometry(100, 100, 128, 128);
-        break;
-      case 'square':
-        geometry = new THREE.PlaneBufferGeometry(100, 100, 128, 128);
-    }
-
+    let geometry = new THREE.PlaneBufferGeometry(100, 100, 128, 128);
     this.geometry = geometry;
 
-    const filePath = `public/images/${shape}_${num}.png`;
-    this.name = filePath;
+
+    console.log(texture)
     const self = this;
-    texLoader.load( filePath, texture => {
       texture.wrapS = THREE.RepeatWrapping;
       texture.wrapT = THREE.RepeatWrapping;
       console.log('load', texture);
@@ -54,16 +42,10 @@ class SignMesh extends THREE.Mesh {
           side: THREE.DoubleSide
         });
         self.material = material;
-
         // uTimeに渡す最初の時間
         self.startTime = 0;
-
       });
-      // this.material = new THREE.MeshBasicMaterial({
-      //   map: texture,
-      //   side: THREE.DoubleSide
-      // })
-    });
+
 
     // 基準の値からランダムに遠いところを指す
     const randFar = (max, min, base) => {
@@ -239,26 +221,35 @@ document.addEventListener('click', () => {
   throwRandomSign();
 });
 
-function throwRandomSign() {
-  const shapes = [
-    {
-      name: 'circle',
-      num: 37
-    },
-    {
-      name: 'triangle',
-      num: 2
-    },
-    {
-      name: 'square',
-      num: 16
-    }
-  ];
-  const randShape = shapes[Math.floor(Math.random() * shapes.length)];
-  const randNum = Math.floor(Math.random() * randShape.num);
-  console.log(randShape.name, randNum);
+const shapes = [
+  {
+    name: 'circle',
+    num: 37
+  },
+  {
+    name: 'triangle',
+    num: 2
+  },
+  {
+    name: 'square',
+    num: 16
+  }
+];
 
-  let signMesh = new SignMesh(randShape.name, randNum);
+
+// テクスチャを先に全部読み込んでおく
+const textures = [];
+for (let shape of shapes) {
+  for (let i = 0; i < shape.num; i++) {
+    texLoader.load(`public/images/${shape.name}_${i}.png`, texture => {
+      textures.push(texture);
+    })
+  }
+}
+
+function throwRandomSign() {
+  const randTex = textures[Math.floor(Math.random() * textures.length)];
+  let signMesh = new SignMesh(randTex);
   objects.push(signMesh);
   scene.add(signMesh);
   signMesh.status = 'starting';
