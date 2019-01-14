@@ -14,17 +14,36 @@ const gui = new dat.GUI();
 class Sign extends THREE.Mesh {
   constructor (filePath) {
     super();
-    const geometry = new THREE.CircleGeometry(100, 64);
+    const geometry = new THREE.CircleBufferGeometry(100, 128);
     this.geometry = geometry;
 
     this.name = filePath;
-
+    const self = this;
     texLoader.load( filePath, texture => {
       console.log('load ', texture);
-      this.material = new THREE.MeshBasicMaterial({
-        map: texture,
-        side: THREE.DoubleSide
-      })
+      loadShader('public/shader/0.vert', 'public/shader/0.frag', function(vert, frag) {
+        const mat = new THREE.RawShaderMaterial({
+          vertexShader: vert,
+          fragmentShader: frag,
+          uniforms: {
+            uTime: {
+              type: 'f',
+              value: 0.0
+            },
+            uTex: {
+              type: 't',
+              value: texture
+            }
+          },
+          side: THREE.DoubleSide
+        });
+        self.material = mat;
+
+      });
+      // this.material = new THREE.MeshBasicMaterial({
+      //   map: texture,
+      //   side: THREE.DoubleSide
+      // })
     });
 
     // 基準の値からランダムに遠いところを指す
@@ -56,6 +75,9 @@ class Sign extends THREE.Mesh {
     this.floatSpeed = 0.5;
     this.rotationAngle = new THREE.Vector3(Math.random(), Math.random(), Math.random()).normalize();
     this.rotationSpeed = Math.random() * 0.02;
+
+    this.startTime = 0;
+    this.visible = false;
   }
 
   update() {
@@ -67,6 +89,8 @@ class Sign extends THREE.Mesh {
         break;
 
       case 'starting':
+        if (!this.visible) this.visible = true;
+        if (this.startTime === 0) this.startTime = new Date().getTime();
         // 移動
         this.t++;
         speed = 10 * Math.exp(- this.t * 0.2 + 2);
@@ -118,6 +142,12 @@ class Sign extends THREE.Mesh {
 
         break;
     }
+
+    if (this.startTime !== 0) {
+      this.material.uniforms.uTime.value = new Date().getTime() - this.startTime;
+      // console.log(this.material.uniforms.uTime.value)
+    }
+
   }
 }
 
